@@ -61,7 +61,6 @@
 #include "tiny_dnn/util/weight_init.h"
 
 #include "tiny_dnn/io/cifar10_parser.h"
-#include "tiny_dnn/io/rgb_db_parser.h"
 #include "tiny_dnn/io/display.h"
 #include "tiny_dnn/io/layer_factory.h"
 #include "tiny_dnn/io/mnist_parser.h"

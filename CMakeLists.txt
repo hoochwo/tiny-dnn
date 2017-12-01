@@ -141,11 +141,6 @@ elseif(USE_OMP AND NOT OPENMP_FOUND)
             "OpenMP_CXX_FLAGS")
 endif()
 
-
-find_package(OpenCV REQUIRED )
-list(APPEND REQUIRED_LIBRARIES ${OpenCV_LIBS})
-include_directories(${OpenCV_INCLUDE_DIRS})
-
 # Find NNPACK: Acceleration package for neural networks on multi-core CPUs
 find_package(NNPACK QUIET)
 if(USE_NNPACK AND NNPACK_FOUND)

@@ -19,48 +19,25 @@ void construct_net(N &nn, tiny_dnn::core::backend_t backend_type) {
   using relu    = tiny_dnn::relu_layer;
   using softmax = tiny_dnn::softmax_layer;
 
-  const size_t n_fmaps		= 32;  // number of feature maps for upper layer
-  const size_t n_fmaps2		= 64;  // number of feature maps for lower layer
-  const size_t n_fc			= 64;  // number of hidden units in fc layer
+  const size_t n_fmaps  = 32;  // number of feature maps for upper layer
+  const size_t n_fmaps2 = 64;  // number of feature maps for lower layer
+  const size_t n_fc     = 64;  // number of hidden units in fc layer
 
-  //nn << conv(32, 32, 5, 3, 32, tiny_dnn::padding::same, true, 1, 1,
-	 // backend_type)                      // C1
-	 // << pool(32, 32, 32, 2, backend_type)  // P2
-	 // << relu()                                  // activation
-	 // << conv(16, 16, 5, 32, 32, tiny_dnn::padding::same, true, 1, 1,
-		//  backend_type)                      // C3
-	 // << pool(16, 16, 32, 2, backend_type)  // P4
-	 // << relu()                                  // activation
-	 // << conv(8, 8, 5, 32, 64, tiny_dnn::padding::same, true, 1, 1,
-		//  backend_type)                                // C5
-	 // << pool(8, 8, 64, 2, backend_type)             // P6
-	 // << relu()                                            // activation
-	 // << fc(4 * 4 * 64, 64, true, backend_type)    // FC7
-	 // << relu()                                            // activation
-	 // << fc(64, 10, true, backend_type) << softmax(10);  // FC10
-
-
-  //nn << conv(9, 9, 5, 3, 10, tiny_dnn::padding::valid, true, 1, 1,
-	 // backend_type)                      // C1
-	 // << pool(5, 5, 10, 2, backend_type)  // P2
-	 // << relu()                                                            // activation
-	 // << fc(2 * 2 * 10, 6, true, backend_type)    // FC7
-	 // << relu()                                            // activation
-	 // << fc(6, 5, true, backend_type) 
-	 // << softmax(5);  // FC10
-
-
-  nn << conv(27, 27, 5, 3, 10, tiny_dnn::padding::valid, true, 1, 1,
-	  backend_type)                      // C1
-	  << pool(23, 23, 10, 2, backend_type)  // P2
-	  << relu()          
-	  << conv(11, 11, 3, 10, 6, tiny_dnn::padding::valid, true, 1, 1,
-		  backend_type)                      // C1
-	  << relu() 
-	  << fc(9 * 9 * 6, 6, true, backend_type)    // FC7
-	  << relu()                                            // activation
-	  << fc(6, 5, true, backend_type)
-	  << softmax(5);  // FC10
+  nn << conv(32, 32, 5, 3, n_fmaps, tiny_dnn::padding::same, true, 1, 1,
+             backend_type)                      // C1
+     << pool(32, 32, n_fmaps, 2, backend_type)  // P2
+     << relu()                                  // activation
+     << conv(16, 16, 5, n_fmaps, n_fmaps, tiny_dnn::padding::same, true, 1, 1,
+             backend_type)                      // C3
+     << pool(16, 16, n_fmaps, 2, backend_type)  // P4
+     << relu()                                  // activation
+     << conv(8, 8, 5, n_fmaps, n_fmaps2, tiny_dnn::padding::same, true, 1, 1,
+             backend_type)                                // C5
+     << pool(8, 8, n_fmaps2, 2, backend_type)             // P6
+     << relu()                                            // activation
+     << fc(4 * 4 * n_fmaps2, n_fc, true, backend_type)    // FC7
+     << relu()                                            // activation
+     << fc(n_fc, 10, true, backend_type) << softmax(10);  // FC10
 }
 
 void train_cifar10(std::string data_dir_path,
@@ -81,17 +58,13 @@ void train_cifar10(std::string data_dir_path,
   std::vector<tiny_dnn::label_t> train_labels, test_labels;
   std::vector<tiny_dnn::vec_t> train_images, test_images;
 
-  //for (int i = 1; i <= 5; i++) {
-  //  parse_cifar10(data_dir_path + "/data_batch_" + std::to_string(i) + ".bin",
-  //                &train_images, &train_labels, -1.0, 1.0, 0, 0);
-  //}
+  for (int i = 1; i <= 5; i++) {
+    parse_cifar10(data_dir_path + "/data_batch_" + std::to_string(i) + ".bin",
+                  &train_images, &train_labels, -1.0, 1.0, 0, 0);
+  }
 
-  //parse_cifar10(data_dir_path + "/test_batch.bin", &test_images, &test_labels,
-  //              -1.0, 1.0, 0, 0);
-
-  parse_rgb_db(1000, 13, "C:/Data/tnn_complex_ober/train", &train_images, &train_labels, -1.0, 1.0);
-  parse_rgb_db(100, 13, "C:/Data/tnn_complex_ober/test", &test_images, &test_labels, -1.0, 1.0);
-
+  parse_cifar10(data_dir_path + "/test_batch.bin", &test_images, &test_labels,
+                -1.0, 1.0, 0, 0);
 
   std::cout << "start learning" << std::endl;
 
@@ -152,9 +125,9 @@ static void usage(const char *argv0) {
 
 int main(int argc, char **argv) {
   double learning_rate                   = 0.01;
-  int epochs                             = 40;
+  int epochs                             = 30;
   std::string data_path                  = "";
-  int minibatch_size                     = 50;
+  int minibatch_size                     = 10;
   tiny_dnn::core::backend_t backend_type = tiny_dnn::core::default_engine();
 
   if (argc == 2) {
