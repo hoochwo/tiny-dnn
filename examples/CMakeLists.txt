@@ -53,6 +53,10 @@ target_link_libraries(example_cifar_test
 
 cotire(example_deconv_visual example_cifar_train example_cifar_test)
 
+add_executable(example_oberpfaffenhofen_complex_train oberpfaffenhofen/train.cpp ${tiny_dnn_headers})
+    target_link_libraries(example_oberpfaffenhofen_complex_train
+        ${project_library_target_name} ${REQUIRED_LIBRARIES})
+
 add_executable(example_oberpfaffenhofen_train oberpfaffenhofen/train.cpp ${tiny_dnn_headers})
     target_link_libraries(example_oberpfaffenhofen_train
         ${project_library_target_name} ${REQUIRED_LIBRARIES})

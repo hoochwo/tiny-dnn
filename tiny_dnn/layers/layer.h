@@ -563,6 +563,7 @@ class layer : public node {
     // organize input/output vectors from storage
     for (size_t i = 0; i < in_channels_; i++) {
       const auto &nd  = ith_in_node(i);
+	  //Result output
       bwd_in_data_[i] = nd->get_data();
       bwd_in_grad_[i] = nd->get_gradient();
     }

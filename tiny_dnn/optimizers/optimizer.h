@@ -124,6 +124,14 @@ struct adam : public stateful_optimizer<2> {
 
     b1_t *= b1;
     b2_t *= b2;
+
+
+	std::cout << std::endl << "--Updated weights: " << W.size() << std::endl;
+	for (size_t i = 0; i < W.size(); i++) {
+		std::cout << W[i] << " ";
+	}
+	std::cout << std::endl;
+
   }
 
   float_t alpha;  // learning rate

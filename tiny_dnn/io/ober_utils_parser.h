@@ -19,6 +19,8 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/imgcodecs.hpp"
 #include <random>
+#include "tiny_dnn/io/polsar_data_tools.h"
+
 
 namespace tiny_dnn {
 
@@ -98,13 +100,13 @@ namespace tiny_dnn {
 
 		for (int i = indexColumn, i2 = 0; i2 < tmp.cols; i++, i2++) {
 			for (int j = indexRow, j2 = 0; j2 < tmp.rows; j++, j2++) {
-		
+
 				if (image.type() == CV_8UC3)
 				{
 					entry.at<cv::Vec3b>(j, i)[0] = tmp.at<cv::Vec3b>(j2, i2)[0];
 					entry.at<cv::Vec3b>(j, i)[1] = tmp.at<cv::Vec3b>(j2, i2)[1];
 					entry.at<cv::Vec3b>(j, i)[2] = tmp.at<cv::Vec3b>(j2, i2)[2];
-				}  
+				}
 
 				if (image.type() == CV_32FC3)
 				{
@@ -291,27 +293,27 @@ namespace tiny_dnn {
 
 		int IMAGE_RADIUS = radiusAroundMainPx;
 		int IMAGE_DEPTH = 3;
-		int IMAGE_WIDTH = IMAGE_RADIUS*2+1;
+		int IMAGE_WIDTH = IMAGE_RADIUS * 2 + 1;
 		int IMAGE_HEIGHT = IMAGE_RADIUS * 2 + 1;
 		int IMAGE_AREA = IMAGE_WIDTH * IMAGE_HEIGHT;
 		int IMAGE_SIZE = IMAGE_AREA * IMAGE_DEPTH;
-	
+
 		if (scale_min >= scale_max)
 			throw nn_error("scale_max must be greater than scale_min");
 
 
-		cv::Mat  image = cv::imread(dirname+"/magnitude_image.png", CV_LOAD_IMAGE_COLOR);	
+		cv::Mat  image = cv::imread(dirname + "/magnitude_image.png", CV_LOAD_IMAGE_COLOR);
 		std::vector<std::pair<std::string, int>> lines;
 
 		generateLinesAndLabels(num_of_data_points, image, image.cols, image.rows, dirname, lines);
 		std::vector<unsigned char> buf(IMAGE_SIZE);
-		
+
 		for (int i = 0; i < lines.size(); i++) {
 			std::string indexes = lines[i].first;
 			std::vector<std::string> strIndexes = splitCustomString<std::string>(indexes, ",");
 			//cv::Mat cv_img = 
 			getImageByIndex(buf, image, std::stoi(strIndexes.at(0)), std::stoi(strIndexes.at(1)), IMAGE_RADIUS);
-			vec_t img;		
+			vec_t img;
 			std::transform(buf.begin(), buf.end(), std::back_inserter(img),
 				[=](unsigned char c) {
 				return scale_min + (scale_max - scale_min) * c / 255;
@@ -320,4 +322,66 @@ namespace tiny_dnn {
 			train_labels->push_back((uint8_t)lines[i].second);
 		}
 	}
+
+
+	cv::Mat getMagnitudeImageFromRat(std::string pathToRatFile) {
+		std::vector<cv::Mat> inputVector;
+
+		//amplitudes of the complex components of the sample covariance matrix C :
+
+		loadRATOberpfaffenhofen(pathToRatFile, inputVector);
+
+		cv::Mat rgbImage(inputVector.at(0).rows, inputVector.at(0).cols, CV_32FC3, cv::Scalar(0, 0, 0));
+
+
+		//cv::Vec2f(realVal, imagVal)
+		for (int row = 0; row < inputVector.at(0).rows; row++) {
+			for (int col = 0; col < inputVector.at(0).cols; col++) {
+
+				cv::Vec2f pxValue = inputVector.at(0).at<cv::Vec2f>(row, col);
+				float magnitudeB = std::sqrt((pxValue[0] * pxValue[0]) + (pxValue[1] * pxValue[1]));
+
+				pxValue = inputVector.at(1).at<cv::Vec2f>(row, col);
+				float magnitudeG = std::sqrt((pxValue[0] * pxValue[0]) + (pxValue[1] * pxValue[1]));
+
+				pxValue = inputVector.at(2).at<cv::Vec2f>(row, col);
+				float magnitudeR = std::sqrt((pxValue[0] * pxValue[0]) + (pxValue[1] * pxValue[1]));
+
+				rgbImage.at<cv::Vec3f>(row, col)[0] = magnitudeB;
+				rgbImage.at<cv::Vec3f>(row, col)[1] = magnitudeG;
+				rgbImage.at<cv::Vec3f>(row, col)[2] = magnitudeR;
+			}
+		}
+
+		return rgbImage;
+	}
+
+	cv::Mat getMatFromRat(std::string pathToRatFile) {
+		
+		std::vector<cv::Mat> inputVector;
+
+		//amplitudes of the complex components of the sample covariance matrix C :
+		loadRATOberpfaffenhofen(pathToRatFile, inputVector);
+
+
+		cv::Mat source = cv::Mat::zeros(inputVector.at(0).rows, inputVector.at(0).cols, CV_32FC(6));
+		//cv::Vec2f(realVal, imagVal)
+		for (int row = 0; row < inputVector.at(0).rows; row++) {
+			for (int col = 0; col < inputVector.at(0).cols; col++) {
+				cv::Vec2f pxValue = inputVector.at(0).at<cv::Vec2f>(row, col);
+				source.at<cv::Vec6f>(row, col)[0] = pxValue[0];
+				source.at<cv::Vec6f>(row, col)[1] = pxValue[1];
+
+				pxValue = inputVector.at(1).at<cv::Vec2f>(row, col);
+				source.at<cv::Vec6f>(row, col)[2] = pxValue[0];
+				source.at<cv::Vec6f>(row, col)[3] = pxValue[1];
+
+				pxValue = inputVector.at(2).at<cv::Vec2f>(row, col);
+				source.at<cv::Vec6f>(row, col)[4] = pxValue[0];
+				source.at<cv::Vec6f>(row, col)[5] = pxValue[1];
+			}
+		}
+		return source;
+	}
+
 }  // namespace tiny_dnn

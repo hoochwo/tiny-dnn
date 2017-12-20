@@ -22,6 +22,15 @@ class softmax_layer : public activation_layer {
   std::string layer_type() const override { return "softmax-activation"; }
 
   void forward_activation(const vec_t &x, vec_t &y) override {
+
+    //TODO delet printouts
+	std::cout << std::endl << "--Forward Activation softmax x: " << x.size() << std::endl;
+	for (size_t i = 0; i < x.size(); i++) {
+		std::cout << x[i] << " ";
+	}
+	std::cout << std::endl;
+	//
+
     const float_t alpha = *std::max_element(x.begin(), x.end());
     float_t denominator(0);
     for (size_t j = 0; j < x.size(); j++) {
@@ -31,6 +40,14 @@ class softmax_layer : public activation_layer {
     for (size_t j = 0; j < x.size(); j++) {
       y[j] /= denominator;
     }
+
+	//TODO delet printouts
+	std::cout << std::endl << "--Forward Activation softmax y: " << x.size() << std::endl;
+	for (size_t i = 0; i < y.size(); i++) {
+		std::cout << y[i] << " ";
+	}
+	std::cout << std::endl;
+	//
   }
 
   void backward_activation(const vec_t &x,
@@ -38,6 +55,14 @@ class softmax_layer : public activation_layer {
                            vec_t &dx,
                            const vec_t &dy) override {
     const size_t len = dy.size();
+
+	//TODO delet printouts
+	std::cout << std::endl << "--Backward Activation dy softmax y: " << dy.size() << std::endl;
+	for (size_t i = 0; i < dy.size(); i++) {
+		std::cout << dy[i] << " ";
+    }
+	std::cout << std::endl;
+	//
 
 // auxilliary vector to store element wise softmax gradients of all elements
 
@@ -52,6 +77,16 @@ class softmax_layer : public activation_layer {
       // dx = dy * (gradient of softmax)
       dx[j] = vectorize::dot(&dy[0], &df[0], len);
     }
+
+
+	//TODO delet printouts
+	std::cout << std::endl << "--Backward Activation dx softmax x: " << x.size() << std::endl;
+	for (size_t i = 0; i < dx.size(); i++) {
+		std::cout << dx[i] << " ";
+	}
+	std::cout << std::endl;
+	//
+
   }
 
   std::pair<float_t, float_t> scale() const override {

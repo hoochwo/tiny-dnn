@@ -145,7 +145,10 @@ find_package(OpenCV REQUIRED )
 list(APPEND REQUIRED_LIBRARIES ${OpenCV_LIBS})
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-
+set(Boost_INCLUDE_DIR "C:/Libs/boost_1_61_0/install/headers")
+set(Boost_LIBRARY_DIR "C:/Libs/boost_1_61_0/install/libs/msvc-14.0/debug/address-model-64/link-static/threading-multi/libboost_date_time-vc140-mt-gd-1_61.lib")
+include_directories(${Boost_INCLUDE_DIR})
+link_directories(${Boost_LIBRARY_DIR})
 
 # Find NNPACK: Acceleration package for neural networks on multi-core CPUs
 find_package(NNPACK QUIET)
@@ -247,6 +250,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR MINGW OR
     set(EXTRA_C_FLAGS_RELEASE "${EXTRA_C_FLAGS_RELEASE} -O3")
     set(EXTRA_C_FLAGS_DEBUG   "${EXTRA_C_FLAGS_DEBUG} -g3 -pthread")
 elseif(MSVC)
+
     if(USE_SSE)
         add_definitions(-DCNN_USE_SSE)
         set(EXTRA_C_FLAGS "${EXTRA_C_FLAGS} /arch:SSE2")
