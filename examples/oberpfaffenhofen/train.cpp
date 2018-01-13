@@ -17,7 +17,7 @@ void construct_net(N &nn, tiny_dnn::core::backend_t backend_type) {
 
 	using conv = tiny_dnn::convolutional_layer;
 	using pool = tiny_dnn::max_pooling_layer;
-	using fc = tiny_dnn::fully_connected_layer;
+	using fc = tiny_dnn::complex_fully_connected_layer;
 	using relu = tiny_dnn::relu_layer;
 	using softmax = tiny_dnn::softmax_layer;
 
@@ -56,6 +56,14 @@ void train_OBER(std::string data_dir_path,
 	std::vector<tiny_dnn::label_t> train_labels, test_labels, test_labels_loaded, train_labels_loaded;
 	std::vector<tiny_dnn::vec_t> train_images, test_images, test_images_loaded, train_images_loaded;
 
+	tiny_dnn::vec_c complex_img;
+	std::vector<tiny_dnn::vec_c> complex_images;
+	
+	complex_img.push_back(tiny_dnn::complex_t(1,0));
+	complex_img.push_back(tiny_dnn::complex_t(-1, 0));
+	complex_img.push_back(tiny_dnn::complex_t(-1, 0));
+	complex_img.push_back(tiny_dnn::complex_t(-1, 0));
+	complex_images.push_back(complex_img);
 	//parse_rgb_db(100, 1, data_dir_path+ "/train", &train_images_loaded, &train_labels_loaded, -1.0, 1.0);
 	//parse_rgb_db(1, 1, data_dir_path + "/test", &test_images_loaded, &test_labels_loaded, -1.0, 1.0);
 
@@ -149,7 +157,7 @@ void train_OBER(std::string data_dir_path,
 
 	std::cout << "Start learning" << std::endl;
 
-	tiny_dnn::progress_display disp(train_images.size());
+	tiny_dnn::progress_display disp(complex_images.size());
 	tiny_dnn::timer t;
 
 	optimizer.alpha *=
@@ -171,7 +179,7 @@ void train_OBER(std::string data_dir_path,
 	auto on_enumerate_minibatch = [&]() { disp += n_minibatch; };
 
 	// training
-	nn.train<tiny_dnn::mse>(optimizer, train_images, train_labels,
+	nn.train<tiny_dnn::mse>(optimizer, complex_images, train_labels,
 		n_minibatch, n_train_epochs,
 		on_enumerate_minibatch, on_enumerate_epoch);
 

@@ -22,14 +22,14 @@ namespace tiny_dnn {
 /**
  * compute fully-connected(matmul) operation
  **/
-class fully_connected_layer : public layer {
+class complex_fully_connected_layer : public layer {
  public:
   /**
    * @param in_dim [in] number of elements of the input
    * @param out_dim [in] number of elements of the output
    * @param has_bias [in] whether to include additional bias to the layer
    **/
-  fully_connected_layer(size_t in_dim,
+	 complex_fully_connected_layer(size_t in_dim,
                         size_t out_dim,
                         bool has_bias                = true,
                         core::backend_t backend_type = core::default_engine())
@@ -40,7 +40,7 @@ class fully_connected_layer : public layer {
   }
 
   // move constructor
-  fully_connected_layer(fully_connected_layer &&other)
+	 complex_fully_connected_layer(complex_fully_connected_layer &&other)
     : layer(std::move(other)),
       params_(std::move(other.params_)),
       kernel_fwd_(std::move(other.kernel_fwd_)),

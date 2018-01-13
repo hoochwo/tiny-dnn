@@ -91,4 +91,17 @@ typedef double float_t;
 typedef float float_t;
 #endif
 
+typedef struct complex_t{
+	float r;
+	float i;
+
+	complex_t(float r, float i)
+	{
+		this->r = r;
+		this->i = i;
+	}
+
+} complex_t;
+
+
 }  // namespace tiny_dnn
